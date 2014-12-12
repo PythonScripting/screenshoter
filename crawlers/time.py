@@ -1,7 +1,10 @@
 from lxml import etree
 from lxml.cssselect import CSSSelector
 import requests as r
-import requests as r
+from multiprocessing.pool import ThreadPool as Pool
+import sqlite3
+import time
+import random
 
 def find(selector, content):
     """ Select elements from the DOM, like in jQuery.
@@ -26,7 +29,6 @@ def find_one(selector, content):
 def real_url(url):
     """ Returns the URL after all the redirects.
     """
-    print url
     return r.get(url).url
 
 def newest(pages=10):
@@ -39,17 +41,15 @@ def newest(pages=10):
         for p in paragraphs:
             yield 'http://time.mk/' + find_one('h1 a', p).get('href')
 
-import sqlite3
-import time
-import random
+def newest_with_real_urls(pages=10):
+    pool = Pool(5)
+    return pool.map(real_url, newest(pages))
 
 urls_to_add = []
-for url in newest():
+for url in newest_with_real_urls(3):
     # todo: path join
-    record = url, 'new', 'images/' + str(random.random()) + '.png', str(time.time())
+    record = url, 'new', 'images/' + str(random.random()) + '.jpg', str(time.time())
     urls_to_add.append(record)
-
-print urls_to_add
 
 conn = sqlite3.connect('urls.sqlite')
 c = conn.cursor()

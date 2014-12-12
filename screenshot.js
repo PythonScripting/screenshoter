@@ -19,6 +19,12 @@ page.viewportSize = {
 };
 
 page.open(url, function() {
-    page.render(path);
+    page.render(path, { format: 'jpeg', quality: '30' });
     phantom.exit();
 });
+
+var killAfter = 60 * 1000;
+
+setTimeout(function() {
+    phantom.exit(1);
+}, killAfter);
