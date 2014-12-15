@@ -44,16 +44,3 @@ def newest(pages=10):
 def newest_with_real_urls(pages=10):
     pool = Pool(5)
     return pool.map(real_url, newest(pages))
-
-urls_to_add = []
-for url in newest_with_real_urls(3):
-    # todo: path join
-    record = url, 'new', 'images/' + str(random.random()) + '.jpg', str(time.time())
-    urls_to_add.append(record)
-
-conn = sqlite3.connect('urls.sqlite')
-c = conn.cursor()
-rows = c.executemany('INSERT OR IGNORE INTO urls VALUES (?, ?, ?, ?)', urls_to_add)
-
-conn.commit()
-c.close()
