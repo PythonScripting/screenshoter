@@ -2,19 +2,35 @@
 
 Given a base of URLs, it makes screenshots.
 
-## To run
+# Installation steps on Ubuntu
 
-0. Git clone this repo
-1. Install PhantomJS 1.9+
-2. Install Python 2.7
-3. Install python modules: lxml, requests
-4. Make dir 'images/'
-5. Create database 'urls.sqlite'
+```
+git clone https://github.com/skopjehacklab/screenshoter.git
+cd screenshoter/
+
+sudo apt-get update
+sudo apt-get install libxml2-dev libxslt-dev python-dev
+pip install lxml --user
+
+pip install cssselect --user
+
+sudo apt-get install sqlite3
+touch db.sqlite
+
+sqlite3
+> .open db.sqlite
+> .read db/initdb.sql
+> ^D
+
+mkdir images
+
+# install phantomjs ..
+```
 
 To add new urls:
 
-`python cralwers/time.py`
+`soruce config.sh && python fetch-urls.py`
 
-To take screenshots for all urls:
+To take screenshots for scheduled urls:
 
-`python screenshot.py`
+`source config.sh && python take-screenshots.py`
