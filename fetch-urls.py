@@ -1,28 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import subprocess
-import sqlite3
-from multiprocessing.pool import ThreadPool as Pool
-import time
-import random
 import os
+import random
+import time
 
-from screenshooter import capture_all
 from crawlers import timemk
 import db
 
-def id_url_path_triplets(rows):
-    url_path_pairs = []
-    for row in rows:
-        print row
-        ID, url, status, scheduled, taken, path = row
-        triplet = (ID, url, path)
-        url_path_pairs.append(triplet)
-    return url_path_pairs
 
 # Get newest urls from Time.mk
-timemk_urls = timemk.newest_with_real_urls(pages=os.environ["SCRSH_TIME_MK_NEWEST_PAGES"])
+timemk_urls = timemk.newest_with_real_urls(pages=int(os.environ["SCRSH_TIME_MK_NEWEST_PAGES"]))
 
 # Add unique urls to DB
 db.urls.add_all_unique(timemk_urls)
@@ -49,18 +37,3 @@ for row in new_urls:
     db.screenshots.schedule(url, gen_path(), now + one_month)
 
 db.urls.mark_completed(new_urls)
-
-# Find scheduled screenshot entries
-upcoming = db.screenshots.find_upcoming()
-
-# Make (id, url, path) triplets out of every row
-triplets = id_url_path_triplets(upcoming)
-
-# Capture (run phantom) and save to file, return outcomes
-id_outcome_pairs = capture_all(triplets)
-
-# Update DB for every outcome
-db.screenshots.mark_completed_or_failed(id_outcome_pairs)
-
-# Print outcomes
-print 'done'

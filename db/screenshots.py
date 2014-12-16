@@ -9,9 +9,10 @@ def schedule(url, path, when=time.time(), status='new'):
     c = conn.cursor()
 
     timestamp = time.time()
+    retries = 0
 
-    c.execute('INSERT INTO screenshots (url, status, scheduled, taken, path) \
-              VALUES (?, ?, ?, ?, ?)', (url, status, when, timestamp, path))
+    c.execute('INSERT INTO screenshots (url, status, scheduled, taken, path, retries) \
+               VALUES (?, ?, ?, ?, ?, ?)', (url, status, when, timestamp, path, retries))
 
     conn.commit()
     c.close()
@@ -24,7 +25,7 @@ def find_upcoming():
 
     upcoming_screenshots = c.execute('SELECT * FROM screenshots WHERE \
                                       (status == "new" AND scheduled < ?) OR \
-                                      (status == "failed")', now)
+                                      (status == "failed") AND (retries < 3)', now)
     upcoming_screenshots = list(upcoming_screenshots)
 
     c.close()
@@ -39,20 +40,38 @@ def done(ID):
     conn.commit()
     c.close()
 
-def mark_completed_or_failed(id_status_pairs):
-    def transform(pair):
-        ID, return_code = pair
+def mark_completed_or_failed(id_outcome_retries):
+    def transform(row):
+        ID, return_code, retries = row
+        retries += 1
         if return_code == 0:
-            return ('done', ID)
+            return ('done', retries, ID)
         else:
-            return ('failed', ID)
+            return ('failed', retries, ID)
 
-    id_status_pairs = map(transform, id_status_pairs)
+    status_retries_id = map(transform, id_outcome_retries)
 
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
 
-    c.executemany('UPDATE screenshots SET status = ? WHERE id == ?', id_status_pairs)
+    c.executemany('UPDATE screenshots SET status = ?, retries = ? WHERE id == ?', status_retries_id)
 
     conn.commit()
     c.close()
+
+"""
+CREATE TABLE urls (
+    "url" TEXT NOT NULL,
+    "added" REAL NOT NULL
+, "status" TEXT);
+
+CREATE TABLE screenshots (
+    "id" INTEGER NOT NULL,
+    "url" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+    "scheduled" REAL,
+    "taken" REAL,
+    "path" TEXT,
+    "retries" INTEGER DEFAULT (0)
+);
+"""
