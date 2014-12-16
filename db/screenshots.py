@@ -58,20 +58,3 @@ def mark_completed_or_failed(id_outcome_retries):
 
     conn.commit()
     c.close()
-
-"""
-CREATE TABLE urls (
-    "url" TEXT NOT NULL,
-    "added" REAL NOT NULL
-, "status" TEXT);
-
-CREATE TABLE screenshots (
-    "id" INTEGER NOT NULL,
-    "url" TEXT NOT NULL,
-    "status" TEXT NOT NULL,
-    "scheduled" REAL,
-    "taken" REAL,
-    "path" TEXT,
-    "retries" INTEGER DEFAULT (0)
-);
-"""
