@@ -5,6 +5,7 @@ from multiprocessing.pool import ThreadPool as Pool
 import sqlite3
 import time
 import random
+import os
 
 def find(selector, content):
     """ Select elements from the DOM, like in jQuery.
@@ -42,5 +43,5 @@ def newest(pages=10):
             yield 'http://time.mk/' + find_one('h1 a', p).get('href')
 
 def newest_with_real_urls(pages=10):
-    pool = Pool(5)
+    pool = Pool(int(os.environ["SCRSH_TIME_MK_THREAD_POOL"]))
     return pool.map(real_url, newest(pages))

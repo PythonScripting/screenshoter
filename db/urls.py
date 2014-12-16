@@ -1,7 +1,8 @@
 import sqlite3
 import time
+import os
 
-DB_NAME = 'db.sqlite'
+DB_NAME = os.environ["SCRSH_DB_NAME"]
 
 def add_unique(url):
     conn = sqlite3.connect()

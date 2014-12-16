@@ -1,5 +1,6 @@
 import subprocess
 from multiprocessing.pool import ThreadPool as Pool
+import os
 
 def capture(id_url_path_triplet):
     """ Takes a screenshot by running a PhantomJS process.
@@ -11,10 +12,10 @@ def capture(id_url_path_triplet):
     """
 
     ID, url, path = id_url_path_triplet
-    process = subprocess.Popen(['phantomjs', 'screenshot.js', url, path])
+    process = subprocess.Popen(['phantomjs', 'take-screenshot.js', url, path])
     process.wait()
     return (ID, process.returncode)
 
-def capture_all(id_url_path_triplets, pool_size=5):
-    pool = Pool(pool_size)
+def capture_all(id_url_path_triplets):
+    pool = Pool(int(os.environ["SCRSH_PHANTOM_THREAD_POOL"]))
     return pool.map(capture, id_url_path_triplets)

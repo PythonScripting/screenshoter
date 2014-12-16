@@ -6,6 +6,7 @@ import sqlite3
 from multiprocessing.pool import ThreadPool as Pool
 import time
 import random
+import os
 
 from screenshooter import capture_all
 from crawlers import timemk
@@ -21,7 +22,7 @@ def id_url_path_triplets(rows):
     return url_path_pairs
 
 # Get newest urls from Time.mk
-timemk_urls = timemk.newest_with_real_urls(pages=1)
+timemk_urls = timemk.newest_with_real_urls(pages=os.environ["SCRSH_TIME_MK_NEWEST_PAGES"])
 
 # Add unique urls to DB
 db.urls.add_all_unique(timemk_urls)
@@ -30,7 +31,7 @@ db.urls.add_all_unique(timemk_urls)
 new_urls = db.urls.find_new()
 
 def gen_path():
-    return 'images/' + str(random.random()) + '.jpg' # todo: path join
+    return os.path.join(os.environ["SCRSH_IMAGES_PATH"], str(random.random()) + '.jpg')
 
 for row in new_urls:
     url, added, status = row

@@ -1,8 +1,11 @@
 import sqlite3
 import time
+import os
+
+DB_NAME = os.environ["SCRSH_DB_NAME"]
 
 def schedule(url, path, when=time.time(), status='new'):
-    conn = sqlite3.connect('db.sqlite')
+    conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
 
     timestamp = time.time()
@@ -14,7 +17,7 @@ def schedule(url, path, when=time.time(), status='new'):
     c.close()
 
 def find_upcoming():
-    conn = sqlite3.connect('db.sqlite')
+    conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
 
     now = tuple([str(time.time())])
@@ -28,7 +31,7 @@ def find_upcoming():
     return upcoming_screenshots
 
 def done(ID):
-    conn = sqlite3.connect('db.sqlite')
+    conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
 
     c.execute('UPDATE screenshots SET status = "done" WHERE id == ?', ID)
@@ -46,7 +49,7 @@ def mark_completed_or_failed(id_status_pairs):
 
     id_status_pairs = map(transform, id_status_pairs)
 
-    conn = sqlite3.connect('db.sqlite')
+    conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
 
     c.executemany('UPDATE screenshots SET status = ? WHERE id == ?', id_status_pairs)
