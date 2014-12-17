@@ -40,7 +40,7 @@ def mark_completed(urls):
     # extract just the url
     urls = map(lambda url: (url[0],), urls)
 
-    c.executemany('UPDATE urls SET status == "done" WHERE url = ?', urls)
+    c.executemany('UPDATE urls SET status = "done" WHERE url == ?', urls)
 
     conn.commit()
     c.close()
